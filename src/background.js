@@ -1,14 +1,7 @@
 var lastTimestamp;
 
 function getMetadata(urls, callback) {
-  var objects = [];
-  for (var url of urls) {
-    objects.push({
-      url: url,
-      txpower: 0,
-      rssi: 0,
-    });
-  }
+  var objects = urls.map(function(url) { return {'url': url} });
   var xhr = new XMLHttpRequest();
   xhr.open('POST', 'https://url-caster.appspot.com/resolve-scan');
   xhr.responseType = 'json';
@@ -26,11 +19,10 @@ function onHttpServiceListUpdated(services) {
 
   lastTimestamp = new Date();
 
-  var beaconUrls = [];
-  for (var service of services) {
-    beaconUrls.push('http://' + service.serviceHostPort.replace(':80', '') +
-                    service.serviceData[0].substr('path='.length));
-  }
+  var beaconUrls = services.map(function(service) {
+    return 'http://' + service.serviceHostPort.replace(':80', '') +
+        service.serviceData[0].substr('path='.length);
+  });
   showBeaconNotification(beaconUrls, lastTimestamp);
 }
 
