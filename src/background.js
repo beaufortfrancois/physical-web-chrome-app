@@ -5,7 +5,9 @@ function getMetadata(urls, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open('POST', 'https://url-caster.appspot.com/resolve-scan');
   xhr.responseType = 'json';
-  xhr.onloadend = function() { callback(xhr.response); };
+  xhr.onloadend = function() {
+    callback((xhr.response && xhr.response.metadata) || []);
+  };
   xhr.send(JSON.stringify({'objects' : objects}));
 }
 
@@ -40,25 +42,21 @@ function showBeaconNotification(beaconUrls, timestamp) {
     priority: -2,
   };
 
-  getMetadata(beaconUrls, function(response) {
-    if (!response.metadata || response.metadata.length === 0) {
-      for (var beaconUrl of beaconUrls) {
-        options.items.push({
-          title: beaconUrl,
-          message: '',
-        });
-      }
-    } else {
-      for (var metadata of response.metadata) {
-        options.items.push({
-          title: metadata.title,
-          message: metadata.url
-        });
-      }
+  getMetadata(beaconUrls, function(metadata) {
+    if (timestamp !== lastTimestamp) {
+      return;
     }
-    if (timestamp === lastTimestamp) {
-      chrome.notifications.create('beacons', options);
+
+    for (var beaconUrl of beaconUrls) {
+      var urlMetadata = metadata.filter(function(data) {
+        return data.id === beaconUrl;
+      }).shift();
+      options.items.push({
+        title: (urlMetadata && urlMetadata.title) || beaconUrl,
+        message: (urlMetadata && urlMetadata.url) || ''
+      });
     }
+    chrome.notifications.create('beacons', options);
   });
 }
 
