@@ -62,6 +62,13 @@ function showBeaconNotification(beaconUrls, timestamp) {
   });
 }
 
-var httpFilter = { serviceType: '_http._tcp.local' };
-chrome.mdns.onServiceList.removeListener(onHttpServiceListUpdated, httpFilter);
-chrome.mdns.onServiceList.addListener(onHttpServiceListUpdated, httpFilter);
+function searchBeacons() {
+  console.debug('searchBeacons');
+
+  var httpFilter = { serviceType: '_http._tcp.local' };
+  chrome.mdns.onServiceList.removeListener(onHttpServiceListUpdated, httpFilter);
+  chrome.mdns.onServiceList.addListener(onHttpServiceListUpdated, httpFilter);
+}
+
+searchBeacons();
+chrome.notifications.onClosed.addListener(searchBeacons);
