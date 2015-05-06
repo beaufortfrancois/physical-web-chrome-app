@@ -1,7 +1,7 @@
 var lastTimestamp;
 
 function getMetadata(urls, callback) {
-  var objects = urls.map(function(url) { return {'url': url} });
+  var objects = urls.map(function(url) { return {'url': url}; });
   var xhr = new XMLHttpRequest();
   xhr.open('POST', 'https://url-caster.appspot.com/resolve-scan');
   xhr.responseType = 'json';
@@ -56,7 +56,9 @@ function showBeaconNotification(beaconUrls, timestamp) {
         message: (urlMetadata && urlMetadata.url) || ''
       });
     }
-    chrome.notifications.create('beacons', options);
+    chrome.notifications.create('beacons', options, function() {
+      window.close();
+    });
   });
 }
 
